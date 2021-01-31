@@ -14,10 +14,9 @@ from plotly.offline import init_notebook_mode,iplot, plot
 import os
 
 
-st.cache(persist=True)
-st.title('💉😷 Track COVID-19 numbers Worldwide!')
 
-   
+st.title('💉😷 Track COVID-19 numbers Worldwide!')
+st.cache(persist=True) 
 def load_data():
     covid19 = pd.read_csv('https://covid.ourworldindata.org/data/owid-covid-data.csv',encoding='UTF-8', engine='python')
     covid19['date'] = pd.to_datetime(covid19['date'],format = '%Y-%m-%d')

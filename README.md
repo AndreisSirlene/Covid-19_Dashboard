@@ -18,7 +18,7 @@
 
 ## Demos
 
-* Hosted with Streamlit at this [link]( ....).
+* Hosted with Streamlit at this [link](https://share.streamlit.io/andreissirlene/covid-19_dashboard/main/src/app.py).
 
 
 ## Install and run
