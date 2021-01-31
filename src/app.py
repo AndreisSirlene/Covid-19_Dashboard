@@ -13,12 +13,17 @@ import plotly.graph_objects as go
 from plotly.offline import init_notebook_mode,iplot, plot
 import os
 
+def main():
+    
+    st.markdown("<h1 style='text-align: center; color: #ff634d;'><strong><u>😷 Track COVID-19 numbers Worldwide!</u></strong></h1>", unsafe_allow_html=True)
+    st.sidebar.markdown("<h1 style='text-align: center; color: #aaccee;'><strong><u>Covid 19 Dashboard</u></strong></h1>", unsafe_allow_html=True)
+    
+    st.markdown("This Web App is a live Covid-19 Dashboard which access Data sourced from Our World in Data", unsafe_allow_html=True)
 
 
-st.title('💉😷 Track COVID-19 numbers Worldwide!')
 st.cache(persist=True) 
 def load_data():
-    covid19 = pd.read_csv('https://covid.ourworldindata.org/data/owid-covid-data.csv',encoding='UTF-8', engine='python')
+    covid19 = pd.read_csv('https://covid.ourworldindata.org/data/owid-covid-data.csv', encoding='ISO-8859-1',thousands='.', decimal=',', engine='python')
     covid19['date'] = pd.to_datetime(covid19['date'],format = '%Y-%m-%d')
     return covid19
 covid19 = load_data()
@@ -35,30 +40,21 @@ covid19['total_vaccinations'] = covid19['total_vaccinations'].replace(np.nan, ''
 covid19['people_fully_vaccinated'] = covid19['people_fully_vaccinated'].replace(np.nan, '')
 covid19['total_deaths'] = covid19['total_deaths'].replace(np.nan, '')
 
+if __name__ == '__main__':
+    main()
+
 #######################################################################################
-
-
 st.write('**Choose a country to Visualize COVID-19 numbers :**')
 
 country = st.selectbox("Choose a country",covid19["location"].unique())
 
-st.header(f"Select the data of your interesse to visualize for {country}")
-daily = st.selectbox("Select the option",('Daily New Cases','Daily New Vaccinations', 'Daily New Deaths', 'Daily New Tests', 
-'Total Cases', 'Total Deaths', 'Total Vaccinations'))
+st.header(f"Select the data of your interesse  to visualize for {country}")
+daily = st.selectbox("Select the option",('Total Cases', 'Total Deaths', 'Total Vaccinations'))
 typ = st.radio("Select the type of Chart",("Line Chart","Scatter Chart"))
 
 
 vaccine = alt.Chart(covid19[covid19["location"]==country]).encode(
     x="date", y="new_vaccinations", tooltip=["date:T","location:N","new_vaccinations:Q"]).interactive()
-
-new_cases = alt.Chart(covid19[covid19["location"]==country]).encode(
-    x="date",y="new_cases",tooltip=["date:T","location:N","new_cases:Q"]).interactive()
-
-new_tests = alt.Chart(covid19[covid19["location"]==country]).encode(
-    x="date",y="new_tests",tooltip=["date:T","location:N","new_tests:Q"]).interactive()
-
-new_deaths = alt.Chart(covid19[covid19["location"]==country]).encode(
-    x="date",y="new_deaths",tooltip=["date:T","location:N","new_deaths:Q"]).interactive()
 
 t_cases = alt.Chart(covid19[covid19["location"]==country]).encode(
     x="date",y="total_cases",tooltip=["date:T","location:N","total_cases:Q"]).interactive()
@@ -69,7 +65,7 @@ t_deaths = alt.Chart(covid19[covid19["location"]==country]).encode(
 t_vaccinations = alt.Chart(covid19[covid19["location"]==country]).encode(
     x="date",y="total_vaccinations",tooltip=["date:T","location:N","total_vaccinations:Q"]).interactive()
 
-cases= alt.Chart(covid19[covid19["location"]==country],title="Scatter Chart",width=500,height=400).mark_circle(color='green').encode( 
+cases= alt.Chart(covid19[covid19["location"]==country],title="Scatter Chart",width=800,height=600).mark_circle(color='green').encode( 
     x ="date",
     y ="total_cases",
     size ="total_deaths",
@@ -115,84 +111,85 @@ elif daily =='New Tests':
 'In Scatter Chart, **Circle** represent Daily New Cases, size of the circle shows the daily New Deaths and the color variation shows the Total Vaccinations'
 st.altair_chart(cases)
 
-#################################################################################################
-
-
-
-###########################################################################################################################
-st.sidebar.markdown('**COVID-19 Dashboard**')
-st.sidebar.markdown('''
-🗂️ Data on COVID-19 vaccination, cases, deaths, tests and vaccinations.
-
-• Updated daily by Our World in Data www.ourworldindata.org/coronavirus.
-
-• All the charts are interactive you can select the different options to vary the Visualization.
-
-• Scroll the mouse over the charts to see the different interactions available.
-
-**Stable URLs**
-
-The `/public` path of this repository is hosted at `https://covid.ourworldindata.org/`.
-
-This data has been collected, aggregated, and documented by Cameron Appel, Diana Beltekian, Daniel Gavrilov, 
-Charlie Giattino, Joe Hasell, Bobbie Macdonald, Edouard Mathieu, Esteban Ortiz-Ospina, Hannah Ritchie, Max Roser.''')
-
 
 #############################################################################################################################
-trace1 = go.Scatter(
-    x=covid19.groupby(['date'])['date'].apply(lambda x: np.unique(x)[0]),
-    y=covid19.groupby(['date'])['new_tests_smoothed'].sum().astype(int),
-        xaxis='x2',
-    yaxis='y2',
-    name = "new tests smoothed")
+st.sidebar.subheader('Worldwide analysis through Line Plotly')  
+           
+if not st.sidebar.checkbox("Hide Line Chart",True):
+
+
+    trace1 = go.Scatter(
+        x=covid19.groupby(['date'])['date'].apply(lambda x: np.unique(x)[0]),
+        y=covid19.groupby(['date'])['new_tests_smoothed'].sum().astype(int),
+            xaxis='x2',
+        yaxis='y2',
+        name = "new tests smoothed")
+        
+    trace2 = go.Scatter(
+        x=covid19.groupby(['date'])['date'].apply(lambda x: np.unique(x)[0]),
+        y=covid19.groupby(['date'])['new_deaths_smoothed'].sum().astype(int),
+        name = "new deaths smoothed")
+
+    trace3 = go.Scatter(
+        x=covid19.groupby(['date'])['date'].apply(lambda x: np.unique(x)[0]),
+        y=(covid19.groupby(['date'])['reproduction_rate'].mean() * 100).round(3),
+        xaxis='x3',
+        yaxis='y3',
+        name = "reproduction rate %")
+
+    trace4 = go.Scatter(
+        x=covid19.groupby(['date'])['date'].apply(lambda x: np.unique(x)[0]),
+        y=covid19.groupby(['date'])['new_cases_smoothed'].sum().astype(int),
+        xaxis='x4',
+        yaxis='y4',
+        name = "new cases smoothed")
+
+    data = [trace1, trace2, trace3, trace4]
+    layout = go.Layout(
+        xaxis=dict(domain=[0, 0.45]),
+        yaxis=dict(domain=[0, 0.45]),
+        xaxis2=dict(domain=[0.55, 1]),
+        xaxis3=dict(domain=[0, 0.45],
+            anchor='y3'),
+        xaxis4=dict(domain=[0.55, 1],
+            anchor='y4'),
+        yaxis2=dict(domain=[0, 0.45],
+            anchor='x2'),
+        yaxis3=dict(domain=[0.55, 1]),
+        yaxis4=dict(domain=[0.55, 1],
+            anchor='x4'),
     
-trace2 = go.Scatter(
-    x=covid19.groupby(['date'])['date'].apply(lambda x: np.unique(x)[0]),
-    y=covid19.groupby(['date'])['new_deaths_smoothed'].sum().astype(int),
-    name = "new deaths smoothed")
-
-trace3 = go.Scatter(
-    x=covid19.groupby(['date'])['date'].apply(lambda x: np.unique(x)[0]),
-    y=(covid19.groupby(['date'])['positive_rate'].mean() * 100).round(3),
-    xaxis='x3',
-    yaxis='y3',
-    name = "test positive rate %")
-
-trace4 = go.Scatter(
-    x=covid19.groupby(['date'])['date'].apply(lambda x: np.unique(x)[0]),
-    y=covid19.groupby(['date'])['new_cases_smoothed'].sum().astype(int),
-    xaxis='x4',
-    yaxis='y4',
-    name = "new cases smoothed")
-
-data = [trace1, trace2, trace3, trace4]
-layout = go.Layout(
-    xaxis=dict(domain=[0, 0.45]),
-    yaxis=dict(domain=[0, 0.45]),
-    xaxis2=dict(domain=[0.55, 1]),
-    xaxis3=dict(domain=[0, 0.45],
-        anchor='y3'),
-    xaxis4=dict(domain=[0.55, 1],
-        anchor='y4'),
-    yaxis2=dict(domain=[0, 0.45],
-        anchor='x2'),
-    yaxis3=dict(domain=[0.55, 1]),
-    yaxis4=dict(domain=[0.55, 1],
-        anchor='x4'),
-   
-    title = 'New tests, deaths, cases and test positive rate',
-    width = 1000,
-    height = 800)
-fig = go.Figure(data=data, layout=layout)
-st.plotly_chart(fig)
+        title = 'New tests, deaths, cases and test positive rate',
+        width = 1000,
+        height = 800)
+    fig = go.Figure(data=data, layout=layout)
+    st.plotly_chart(fig)
 
 ######################################################################################
 
+st.sidebar.subheader('🗂️ Data on COVID-19 information')
+if not st.sidebar.checkbox("Hide Dataset Information",True):
 
+    st.sidebar.write('''
+    • Updated daily by Our World in Data www.ourworldindata.org/coronavirus.
+
+    • All the charts are interactive you can select the different options to vary the Visualization.
+
+    • Scroll the mouse over the charts to see the different interactions available.
+
+    **Stable URLs**
+
+    The `/public` path of this repository is hosted at `https://covid.ourworldindata.org/`.
+
+    This data has been collected, aggregated, and documented by Cameron Appel, Diana Beltekian, Daniel Gavrilov, 
+    Charlie Giattino, Joe Hasell, Bobbie Macdonald, Edouard Mathieu, Esteban Ortiz-Ospina, Hannah Ritchie, Max Roser.''')
+#############################################################################
 st.header(f"View the Dataset by Month")
 
-if st.checkbox("Click to View the Dataset",False):
+if st.checkbox("Click to View the Raw Dataset",False):
     "Select the Month from Slider"
     nc = st.slider("Month",1,12)
     covid19 = covid19[covid19["date"].dt.month ==nc]
     "data", covid19
+
+
