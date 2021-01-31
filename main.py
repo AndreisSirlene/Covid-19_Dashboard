@@ -13,15 +13,18 @@ import plotly.graph_objects as go
 from plotly.offline import init_notebook_mode,iplot, plot
 import os
 
+
 st.cache(persist=True)
 st.title('💉😷 Track COVID-19 numbers Worldwide!')
 
    
 def load_data():
-    covid19 = pd.read_csv('https://covid.ourworldindata.org/data/owid-covid-data.csv',encoding='UTF-8',engine='python')
+    covid19 = pd.read_csv('https://covid.ourworldindata.org/data/owid-covid-data.csv',encoding='UTF-8', engine='python')
     covid19['date'] = pd.to_datetime(covid19['date'],format = '%Y-%m-%d')
     return covid19
 covid19 = load_data()
+
+
 ###################################################################################
 
 covid19['new_tests'] = covid19['new_tests'].replace(np.nan, '')
@@ -113,13 +116,14 @@ elif daily =='New Tests':
 'In Scatter Chart, **Circle** represent Daily New Cases, size of the circle shows the daily New Deaths and the color variation shows the Total Vaccinations'
 st.altair_chart(cases)
 
+#################################################################################################
+
+
 
 ###########################################################################################################################
 st.sidebar.markdown('**COVID-19 Dashboard**')
 st.sidebar.markdown('''
-🗂️ Data on COVID-19 vaccination, cases, deaths, hospitalizations, tests and recovers.
-
-• Including all countries.
+🗂️ Data on COVID-19 vaccination, cases, deaths, tests and vaccinations.
 
 • Updated daily by Our World in Data www.ourworldindata.org/coronavirus.
 
@@ -130,7 +134,6 @@ st.sidebar.markdown('''
 **Stable URLs**
 
 The `/public` path of this repository is hosted at `https://covid.ourworldindata.org/`.
-For example, you can access the CSV for the complete dataset at `https://covid.ourworldindata.org/data/owid-covid-data.csv`.
 
 This data has been collected, aggregated, and documented by Cameron Appel, Diana Beltekian, Daniel Gavrilov, 
 Charlie Giattino, Joe Hasell, Bobbie Macdonald, Edouard Mathieu, Esteban Ortiz-Ospina, Hannah Ritchie, Max Roser.''')
