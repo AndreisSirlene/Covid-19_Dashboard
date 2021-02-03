@@ -1,7 +1,7 @@
 # Covid-19_Dashboard
 🦠 Quick streamlit dashboard to visualise the impact of COVID-19 worldwide.
 
-🗂️ Data on COVID-19 vaccination, cases, deaths, tests and vaccinations.
+🗂️ Data on COVID-19 cases, deaths, tests and vaccinations.
 
 • This app Covid-19 Dashboard access Data sourced updated daily by Our World in Data www.ourworldindata.org/coronavirus
 
